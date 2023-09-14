@@ -60,7 +60,12 @@ function moveSnake() {
   head = checkBorderCollision(head);
 
   state.position.unshift(head);
-  state.position.pop();
+
+  if (!state.ateSnack) {
+    state.position.pop();
+  } else {
+    state.ateSnack = false;
+  }
 }
 /**
  * @param {Point} cell
@@ -85,6 +90,39 @@ function drawSnakeCell(ctx, cell) {
   ctx.fillRect(cell.x, cell.y, 20, 20);
 }
 
+function spawnSnack() {
+  const snackPosition = {
+    x: Math.floor(Math.random() * 20) * 20,
+    y: Math.floor(Math.random() * 20) * 20,
+  };
+
+  state.snackPosition = snackPosition;
+}
+
+/**
+ * @param {CanvasRenderingContext2D} ctx
+ */
+function drawSnack(ctx) {
+  if (state.snackPosition) {
+    ctx.fillStyle = "red";
+    ctx.fillRect(state.snackPosition.x, state.snackPosition.y, 20, 20);
+  }
+}
+
+/**
+ * @param {CanvasRenderingContext2D} ctx
+ */
+function eatSnack(ctx) {
+  if (
+    state.position[0].x === state.snackPosition.x &&
+    state.position[0].y === state.snackPosition.y
+  ) {
+    state.ateSnack = true; // Set the flag to true when the snake eats the snack
+    state.snackPosition = undefined;
+    spawnSnack();
+  }
+}
+
 // GAME LIFECYLE AREA
 const state = {
   position: [
@@ -94,6 +132,8 @@ const state = {
   ],
   direction: "down",
   initialDirection: "down",
+  snackPosition: undefined,
+  ateSnack: false,
 };
 
 function render() {
@@ -103,9 +143,13 @@ function render() {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, 400, 400);
 
+    if (!state.snackPosition) spawnSnack(ctx);
     moveSnake();
+    eatSnack(ctx);
     state.initialDirection = state.direction;
     state.position.forEach((cell) => drawSnakeCell(ctx, cell));
+
+    drawSnack(ctx);
   }
 }
 
