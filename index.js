@@ -57,8 +57,23 @@ function moveSnake() {
       break;
   }
 
+  head = checkBorderCollision(head);
+
   state.position.unshift(head);
   state.position.pop();
+}
+/**
+ * @param {Point} cell
+ */
+function checkBorderCollision(cell) {
+  const finalCell = { ...cell };
+
+  if (cell.x > 400) finalCell.x = 0;
+  else if (cell.x < 0) finalCell.x = 400;
+  else if (cell.y > 400) finalCell.y = 0;
+  else if (cell.y < 0) finalCell.y = 400;
+
+  return finalCell;
 }
 
 /**
@@ -95,25 +110,23 @@ function render() {
 }
 
 document.addEventListener("keydown", (event) => {
-  document.addEventListener("keydown", (event) => {
-    const newDirection = mapKeyToDirection(event.key);
-    const prevDirection = state.initialDirection;
+  const newDirection = mapKeyToDirection(event.key);
+  const prevDirection = state.initialDirection;
 
-    switch (newDirection) {
-      case "up":
-        if (prevDirection !== "down") state.direction = newDirection;
-        break;
-      case "left":
-        if (prevDirection !== "right") state.direction = newDirection;
-        break;
-      case "right":
-        if (prevDirection !== "left") state.direction = newDirection;
-        break;
-      case "down":
-        if (prevDirection !== "up") state.direction = newDirection;
-        break;
-    }
-  });
+  switch (newDirection) {
+    case "up":
+      if (prevDirection !== "down") state.direction = newDirection;
+      break;
+    case "left":
+      if (prevDirection !== "right") state.direction = newDirection;
+      break;
+    case "right":
+      if (prevDirection !== "left") state.direction = newDirection;
+      break;
+    case "down":
+      if (prevDirection !== "up") state.direction = newDirection;
+      break;
+  }
 });
 
 setInterval(render, 300);
