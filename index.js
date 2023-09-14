@@ -30,25 +30,29 @@ function mapKeyToDirection(key) {
   }
 }
 
-/**
- * @param {string} direction
- */
-function moveSnake(direction) {
+function moveSnake() {
+  const direction = state.direction;
+  const prevDirection = state.initialDirection;
+
   if (!direction) return;
 
   let head = { ...state.position[0] };
 
   switch (direction) {
     case "up":
+      if (prevDirection === "down") return;
       head.y -= 20;
       break;
     case "left":
+      if (prevDirection === "right") return;
       head.x -= 20;
       break;
     case "right":
+      if (prevDirection === "left") return;
       head.x += 20;
       break;
     case "down":
+      if (prevDirection === "up") return;
       head.y += 20;
       break;
   }
@@ -74,6 +78,7 @@ const state = {
     { x: 0, y: 0 },
   ],
   direction: "down",
+  initialDirection: "down",
 };
 
 function render() {
@@ -83,13 +88,32 @@ function render() {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, 400, 400);
 
-    moveSnake(state.direction);
+    moveSnake();
+    state.initialDirection = state.direction;
     state.position.forEach((cell) => drawSnakeCell(ctx, cell));
   }
 }
 
 document.addEventListener("keydown", (event) => {
-  state.direction = mapKeyToDirection(event.key);
+  document.addEventListener("keydown", (event) => {
+    const newDirection = mapKeyToDirection(event.key);
+    const prevDirection = state.initialDirection;
+
+    switch (newDirection) {
+      case "up":
+        if (prevDirection !== "down") state.direction = newDirection;
+        break;
+      case "left":
+        if (prevDirection !== "right") state.direction = newDirection;
+        break;
+      case "right":
+        if (prevDirection !== "left") state.direction = newDirection;
+        break;
+      case "down":
+        if (prevDirection !== "up") state.direction = newDirection;
+        break;
+    }
+  });
 });
 
 setInterval(render, 300);
