@@ -36,7 +36,7 @@ function moveSnake() {
 
   if (!direction) return;
 
-  let head = { ...state.position[0] };
+  let head = { ...state.snakePosition[0] };
 
   switch (direction) {
     case "up":
@@ -59,14 +59,15 @@ function moveSnake() {
 
   head = checkBorderCollision(head);
 
-  state.position.unshift(head);
+  state.snakePosition.unshift(head);
 
   if (!state.ateSnack) {
-    state.position.pop();
+    state.snakePosition.pop();
   } else {
     state.ateSnack = false;
   }
 }
+
 /**
  * @param {Point} cell
  */
@@ -79,6 +80,23 @@ function checkBorderCollision(cell) {
   else if (cell.y < 0) finalCell.y = 400;
 
   return finalCell;
+}
+
+/**
+ * @returns {boolean}
+ */
+function checkSnakeCollision() {
+  const head = state.snakePosition[0];
+
+  for (let i = 1; i < state.snakePosition.length; i++) {
+    if (
+      head.x === state.snakePosition[i].x &&
+      head.y === state.snakePosition[i].y
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**
@@ -114,18 +132,29 @@ function drawSnack(ctx) {
  */
 function eatSnack(ctx) {
   if (
-    state.position[0].x === state.snackPosition.x &&
-    state.position[0].y === state.snackPosition.y
+    state.snakePosition[0].x === state.snackPosition.x &&
+    state.snakePosition[0].y === state.snackPosition.y
   ) {
-    state.ateSnack = true; // Set the flag to true when the snake eats the snack
+    state.ateSnack = true;
     state.snackPosition = undefined;
     spawnSnack();
   }
 }
 
+/**
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} intervalId
+ */
+function gameOver(ctx, intervalId) {
+  ctx.fillStyle = "white";
+  ctx.fillText("GAME OVER", 175, 175, 50);
+
+  clearInterval(intervalId);
+}
+
 // GAME LIFECYLE AREA
 const state = {
-  position: [
+  snakePosition: [
     { x: 0, y: 40 },
     { x: 0, y: 20 },
     { x: 0, y: 0 },
@@ -143,11 +172,16 @@ function render() {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, 400, 400);
 
+    if (checkSnakeCollision()) {
+      gameOver(ctx, gameLoop);
+      return;
+    }
+
     if (!state.snackPosition) spawnSnack(ctx);
     moveSnake();
     eatSnack(ctx);
     state.initialDirection = state.direction;
-    state.position.forEach((cell) => drawSnakeCell(ctx, cell));
+    state.snakePosition.forEach((cell) => drawSnakeCell(ctx, cell));
 
     drawSnack(ctx);
   }
@@ -173,4 +207,4 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-setInterval(render, 300);
+const gameLoop = setInterval(render, 300);
