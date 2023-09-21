@@ -114,6 +114,13 @@ function spawnSnack() {
     y: Math.floor(Math.random() * 20) * 20,
   };
 
+  for (let point of state.snakePosition) {
+    if (point.x === snackPosition.x && point.y === snackPosition.y) {
+      spawnSnack();
+      return;
+    }
+  }
+
   state.snackPosition = snackPosition;
 }
 
