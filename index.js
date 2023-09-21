@@ -142,6 +142,14 @@ function eatSnack(ctx) {
 }
 
 /**
+ *
+ * @returns {number}
+ */
+function restart() {
+  return setInterval(render, 300);
+}
+
+/**
  * @param {CanvasRenderingContext2D} ctx
  * @param {number} intervalId
  */

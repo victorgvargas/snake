@@ -1,0 +1,12 @@
+body {
+    text-align: center;
+}
+
+h3 {
+    font-size: 48px;
+}
+
+#canvas {
+    margin: 0 auto;
+    display: block;
+}
